@@ -1,0 +1,13 @@
+name: drone-control
+channels:
+  - conda-forge
+  - anaconda
+dependencies:
+  - python=3.6
+  - tensorflow
+  - flake8
+  - tqdm
+  - numpy
+  - matplotlib
+  - pip:
+    - gym
