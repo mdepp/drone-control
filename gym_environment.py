@@ -19,5 +19,6 @@ class GymEnvironment(Environment):
         return self.env.reset()
 
     def step(self, action: Action) -> Tuple[Real, State, bool]:
+        self.env.render()
         observation, reward, done, info = self.env.step(action)  # type: (State, Real, bool, Any)
         return reward, observation, done
