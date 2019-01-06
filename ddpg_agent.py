@@ -208,7 +208,7 @@ class DDPGAgent(Agent):
             self.prev_state, self.prev_action, reward, state
         )
         self.prev_state = state
-        return self._scale_action(self.prev_action)
+        return self._denormalize_action(self.prev_action)
 
     def end_episode(self, reward: Real, state: State) -> None:
         self.replay_buffer.add(self.prev_state, self.prev_action, np.asarray(reward), state)
@@ -243,7 +243,7 @@ class DDPGAgent(Agent):
         self.summary_writer.add_summary(summary, step)
         return action
 
-    def _scale_action(self, action: np.ndarray) -> np.ndarray:
+    def _denormalize_action(self, action: np.ndarray) -> np.ndarray:
         return self.action_min + (self.action_max - self.action_min) * (action+1)/2
 
     def _normalize_state(self, state: State) -> State:
