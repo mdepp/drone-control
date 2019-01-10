@@ -75,14 +75,26 @@ def make_actor(state_shape: Tuple[int, ...], action_shape: Tuple[int, ...]) -> M
 
 
 def main():
-    print(keras.__version__)
+    from argparse import ArgumentParser
+    parser = ArgumentParser()
+    parser.add_argument('--quiet', action='store_true')
+    parser.add_argument('--force-cpu', action='store_true')
+    args = parser.parse_args()
 
-    sess = tf.Session()
+    if args.force_cpu:
+        config = tf.ConfigProto(
+            device_count={'GPU': 0}
+        )
+    else:
+        config = None
+
+    sess = tf.Session(config=config)
     global_step = tf.train.create_global_step(sess.graph)
     sess.run(global_step.initializer)
 
     environment = GymEnvironment(
-        gym.make('Pendulum-v0')
+        gym.make('Pendulum-v0'),
+        quiet=args.quiet,
     )
     environment.env.metadata['video.frames_per_second'] = 120
     action_shape = environment.env.action_space.shape
@@ -96,6 +108,7 @@ def main():
         action_max=environment.env.action_space.high,
         make_critic=lambda: make_critic(state_shape, action_shape),
         make_actor=lambda: make_actor(state_shape, action_shape),
+        quiet=args.quiet,
     )
     glue = Glue(agent, environment)
 

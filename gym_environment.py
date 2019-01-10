@@ -9,8 +9,9 @@ Action = TypeVar('Action')
 
 
 class GymEnvironment(Environment):
-    def __init__(self, env: gym.Env):
+    def __init__(self, env: gym.Env, quiet: bool = False):
         self.env = env
+        self.quiet = quiet
 
     def start_run(self) -> None:
         pass
@@ -19,6 +20,7 @@ class GymEnvironment(Environment):
         return self.env.reset()
 
     def step(self, action: Action) -> Tuple[Real, State, bool]:
-        self.env.render()
+        if not self.quiet:
+            self.env.render()
         observation, reward, done, info = self.env.step(action)  # type: (State, Real, bool, Any)
         return reward, observation, done

@@ -5,6 +5,8 @@ from tensorflow.keras.models import Model
 import tensorflow as tf
 
 import numpy as np
+import datetime
+import os
 
 from agent import Agent
 from replay_buffer import ReplayBuffer
@@ -53,6 +55,7 @@ class DDPGAgent(Agent):
                  tau: float = 1e-3,
                  minibatch_size: int = 64,
                  replay_buffer_size: int = int(1e6),
+                 quiet: bool = False,
                  ):
         # Set up constants
         self.action_min = action_min
@@ -65,6 +68,7 @@ class DDPGAgent(Agent):
         self.state_shape = state_min.shape
         self.gamma = gamma
         self.tau = tau
+        self.quiet = quiet
 
         self.sess = session
         self.global_step = global_step
@@ -178,7 +182,9 @@ class DDPGAgent(Agent):
                 tf.summary.scalar('observed-reward', self.observed_reward),
                 tf.summary.scalar('predicted-return', self.predicted_return),
             ])
-            self.summary_writer = tf.summary.FileWriter('logdir', self.sess.graph)
+            logdir = 'logdir/{}/'.format(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))
+            os.makedirs(os.path.abspath(logdir), exist_ok=True)
+            self.summary_writer = tf.summary.FileWriter(logdir, self.sess.graph)
 
         self.prev_action: np.ndarray = None
         self.prev_state: np.ndarray = None
@@ -239,7 +245,8 @@ class DDPGAgent(Agent):
                 self.observed_prev_action: prev_action,
             }
         )
-        print(g)
+        if not self.quiet:
+            print(g)
         self.summary_writer.add_summary(summary, step)
         return action
 
